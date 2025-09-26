@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { Mic, Shield, Settings } from "lucide-react";
 import { usePermissions } from "../hooks/usePermissions";
 import PermissionCard from "./ui/permission-card";
-import { toast } from "sonner";
+import { toast } from "../utils/notificationWrapper";
 
 const SettingsPanel = ({ onClose }) => {
   const showAlert = (alert) => {

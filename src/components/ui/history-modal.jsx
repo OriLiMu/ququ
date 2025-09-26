@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { X, Copy, Trash2, Search, Calendar, FileText } from "lucide-react";
-import { toast } from "sonner";
+import { toast } from "../../utils/notificationWrapper";
 
 const HistoryModal = ({ isOpen, onClose, onCopy }) => {
   const [transcriptions, setTranscriptions] = useState([]);

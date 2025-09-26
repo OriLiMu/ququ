@@ -29,6 +29,7 @@ const ClipboardManager = require("./src/helpers/clipboard");
 const FunASRManager = require("./src/helpers/funasrManager");
 const TrayManager = require("./src/helpers/tray");
 const HotkeyManager = require("./src/helpers/hotkeyManager");
+const HttpServerManager = require("./src/helpers/httpServerManager");
 const IPCHandlers = require("./src/helpers/ipcHandlers");
 
 // 设置生产环境PATH
@@ -120,6 +121,7 @@ const clipboardManager = new ClipboardManager(logger); // 传递logger实例
 const funasrManager = new FunASRManager(logger); // 传递logger实例
 const trayManager = new TrayManager();
 const hotkeyManager = new HotkeyManager();
+const httpServerManager = new HttpServerManager(logger); // HTTP服务器管理器
 
 // 初始化数据库
 const dataDirectory = environmentManager.ensureDataDirectory();
@@ -184,6 +186,24 @@ async function startApp() {
     logger.error("创建主窗口时出错:", error);
   }
 
+  // 初始化HTTP服务器（nvim集成）
+  try {
+    logger.info('初始化HTTP服务器（nvim集成）...');
+    httpServerManager.setWindowManager(windowManager);
+
+    // 从环境变量或配置中获取端口
+    const httpPort = parseInt(process.env.NVIM_HTTP_PORT || '38765');
+    const httpResult = await httpServerManager.start(httpPort);
+
+    if (httpResult.success) {
+      logger.info(`✅ HTTP服务器启动成功，端口: ${httpResult.port}`);
+    } else {
+      logger.warn(`⚠️ HTTP服务器启动失败: ${httpResult.error}`);
+    }
+  } catch (error) {
+    logger.error('HTTP服务器初始化失败:', error);
+  }
+
   // 创建控制面板窗口
   try {
     logger.info('创建控制面板窗口...');
@@ -225,8 +245,17 @@ app.on("activate", () => {
   }
 });
 
-app.on("will-quit", () => {
+app.on("will-quit", async () => {
   globalShortcut.unregisterAll();
+
+  // 停止HTTP服务器
+  try {
+    logger.info('正在停止HTTP服务器...');
+    await httpServerManager.stop();
+    logger.info('HTTP服务器已停止');
+  } catch (error) {
+    logger.error('停止HTTP服务器失败:', error);
+  }
 });
 
 // 导出管理器供其他模块使用
@@ -238,5 +267,6 @@ module.exports = {
   funasrManager,
   trayManager,
   hotkeyManager,
+  httpServerManager,
   logger
 };
