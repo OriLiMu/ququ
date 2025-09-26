@@ -11,6 +11,7 @@ import { usePermissions } from "./hooks/usePermissions";
 import { Mic, MicOff, Settings, History, Copy, Download } from "lucide-react";
 import SettingsPanel from "./components/SettingsPanel";
 import { ModelDownloadProgress } from "./components/ui/model-status-indicator";
+import HotkeyTest from "./components/HotkeyTest";
 
 // 动态导入设置页面组件
 const SettingsPage = React.lazy(() => import('./settings.jsx').then(module => ({ default: module.SettingsPage })));
@@ -219,6 +220,7 @@ export default function App() {
   const [processedText, setProcessedText] = useState("");
   const [showTextArea, setShowTextArea] = useState(false);
   const [showSettings, setShowSettings] = useState(false);
+  const [showHotkeyTest, setShowHotkeyTest] = useState(false);
   
   const { isDragging, handleMouseDown, handleMouseMove, handleMouseUp, handleClick } = useWindowDrag();
   const modelStatus = useModelStatus();
@@ -660,6 +662,14 @@ export default function App() {
                 <Settings className="w-6 h-6 text-gray-700 dark:text-gray-300" />
               </button>
             </Tooltip>
+            <Tooltip content="热键测试" position="bottom">
+              <button
+                onClick={() => setShowHotkeyTest(!showHotkeyTest)}
+                className="p-3 hover:bg-white/70 dark:hover:bg-gray-700/70 rounded-xl transition-colors shadow-sm"
+              >
+                🧪
+              </button>
+            </Tooltip>
           </div>
         </div>
 
@@ -751,6 +761,11 @@ export default function App() {
       {/* 设置面板 */}
       {showSettings && (
         <SettingsPanel onClose={() => setShowSettings(false)} />
+      )}
+
+      {/* 热键测试面板 */}
+      {showHotkeyTest && (
+        <HotkeyTest />
       )}
 
     </div>
