@@ -11,7 +11,6 @@ import { usePermissions } from "./hooks/usePermissions";
 import { Mic, MicOff, Settings, History, Copy, Download } from "lucide-react";
 import SettingsPanel from "./components/SettingsPanel";
 import { ModelDownloadProgress } from "./components/ui/model-status-indicator";
-import HotkeyTest from "./components/HotkeyTest";
 
 // 动态导入设置页面组件
 const SettingsPage = React.lazy(() => import('./settings.jsx').then(module => ({ default: module.SettingsPage })));
@@ -23,9 +22,8 @@ const SoundWaveIcon = ({ size = 16, isActive = false }) => {
       {[...Array(4)].map((_, i) => (
         <div
           key={i}
-          className={`bg-slate-600 dark:bg-gray-300 rounded-full transition-all duration-150 shadow-sm ${
-            isActive ? "wave-bar" : ""
-          }`}
+          className={`bg-slate-600 dark:bg-gray-300 rounded-full transition-all duration-150 shadow-sm ${isActive ? "wave-bar" : ""
+            }`}
           style={{
             width: size * 0.15,
             height: isActive ? size * 0.8 : size * 0.4,
@@ -63,9 +61,8 @@ const VoiceWaveIndicator = ({ isListening }) => {
       {[...Array(4)].map((_, i) => (
         <div
           key={i}
-          className={`w-0.5 bg-white rounded-full transition-all duration-150 drop-shadow-sm ${
-            isListening ? "animate-pulse h-5" : "h-2"
-          }`}
+          className={`w-0.5 bg-white rounded-full transition-all duration-150 drop-shadow-sm ${isListening ? "animate-pulse h-5" : "h-2"
+            }`}
           style={{
             animationDelay: isListening ? `${i * 0.1}s` : "0s",
             animationDuration: isListening ? `${0.6 + i * 0.1}s` : "0s",
@@ -198,7 +195,7 @@ export default function App() {
   // 检查URL参数来决定渲染哪个页面
   const urlParams = new URLSearchParams(window.location.search);
   const page = urlParams.get('page');
-  
+
   // 如果是设置页面，直接渲染设置组件
   if (page === 'settings') {
     return (
@@ -220,11 +217,10 @@ export default function App() {
   const [processedText, setProcessedText] = useState("");
   const [showTextArea, setShowTextArea] = useState(false);
   const [showSettings, setShowSettings] = useState(false);
-  const [showHotkeyTest, setShowHotkeyTest] = useState(false);
-  
+
   const { isDragging, handleMouseDown, handleMouseMove, handleMouseUp, handleClick } = useWindowDrag();
   const modelStatus = useModelStatus();
-  
+
   const {
     isRecording,
     isProcessing: isRecordingProcessing,
@@ -233,7 +229,7 @@ export default function App() {
     stopRecording,
     error: recordingError
   } = useRecording();
-  
+
   const {
     processText,
     isProcessing: isTextProcessing,
@@ -248,16 +244,16 @@ export default function App() {
   const safePaste = useCallback(async (text) => {
     const now = Date.now();
     const lastPaste = lastPasteRef.current;
-    
+
     // 防重复粘贴：如果是相同文本且在防抖时间内，则跳过
     if (lastPaste.text === text && (now - lastPaste.timestamp) < PASTE_DEBOUNCE_TIME) {
       console.log("🚫 跳过重复粘贴，文本:", text.substring(0, 50) + "...");
       return;
     }
-    
+
     // 更新最后粘贴记录
     lastPasteRef.current = { text, timestamp: now };
-    
+
     console.log("🔄 safePaste 被调用，文本:", text.substring(0, 50) + "...");
     try {
       if (window.electronAPI) {
@@ -287,13 +283,13 @@ export default function App() {
       // 立即显示FunASR识别的原始文本
       setOriginalText(transcriptionResult.text);
       setShowTextArea(true);
-      
+
       // 清空之前的处理结果，等待AI优化
       setProcessedText("");
 
       // 不立即粘贴，等待AI优化完成后再粘贴
       console.log("⏳ 等待AI优化完成后再进行粘贴...");
-      
+
       // 注意：不在这里保存到数据库，由 useRecording.js 统一处理保存逻辑
 
       toast.success("🎤 语音识别完成，AI正在优化文本...");
@@ -308,12 +304,12 @@ export default function App() {
     if (optimizedResult.success && optimizedResult.enhanced_by_ai && optimizedResult.text) {
       // 显示AI优化后的文本
       setProcessedText(optimizedResult.text);
-      
+
       // 自动粘贴AI优化后的文本
       console.log("📋 准备粘贴AI优化后的文本:", optimizedResult.text);
       await safePaste(optimizedResult.text);
       console.log("✅ AI优化文本粘贴完成");
-      
+
       toast.success("🤖 AI文本优化完成并已自动粘贴！");
       console.log('AI优化文本已设置:', optimizedResult.text);
     } else {
@@ -332,13 +328,13 @@ export default function App() {
     console.log('设置回调函数');
     window.onTranscriptionComplete = handleRecordingComplete;
     window.onAIOptimizationComplete = handleAIOptimizationComplete;
-    
+
     // 验证回调函数是否正确设置
     console.log('回调函数设置完成:', {
       onTranscriptionComplete: typeof window.onTranscriptionComplete,
       onAIOptimizationComplete: typeof window.onAIOptimizationComplete
     });
-    
+
     return () => {
       console.log('清理回调函数');
       window.onTranscriptionComplete = null;
@@ -393,7 +389,7 @@ export default function App() {
     try {
       // 显示开始下载的提示
       toast.info("📥 开始下载模型文件...");
-      
+
       const result = await modelStatus.downloadModels();
       if (result.success) {
         toast.success("🎉 模型下载完成，正在加载...");
@@ -413,22 +409,22 @@ export default function App() {
       toast.warning("📥 请先下载AI模型文件");
       return;
     }
-    
+
     if (modelStatus.stage === 'downloading') {
       toast.warning("⬇️ 模型正在下载中，请稍候...");
       return;
     }
-    
+
     if (modelStatus.stage === 'loading') {
       toast.warning("🤖 模型正在加载中，请稍候...");
       return;
     }
-    
+
     if (modelStatus.stage === 'error') {
       toast.error(`❌ 模型错误: ${modelStatus.error}`);
       return;
     }
-    
+
     if (!modelStatus.isReady) {
       toast.warning("⏳ 模型未就绪，请稍候...");
       return;
@@ -449,7 +445,7 @@ export default function App() {
     // 检查是否为控制面板窗口
     const urlParams = new URLSearchParams(window.location.search);
     const isControlPanel = urlParams.get('panel') === 'control';
-    
+
     // 只有主窗口才注册热键
     if (isControlPanel) {
       console.log('控制面板窗口，跳过热键注册');
@@ -581,10 +577,10 @@ export default function App() {
       return {
         className: `${baseClasses} bg-gradient-to-br from-gray-300 to-gray-400 dark:from-gray-600 dark:to-gray-700 cursor-not-allowed opacity-70`,
         tooltip: modelStatus.stage === 'need_download' ? "请先下载AI模型文件" :
-                 modelStatus.stage === 'downloading' ? `模型下载中... ${modelStatus.downloadProgress || 0}%` :
-                 modelStatus.stage === 'loading' ? "模型加载中，请稍候..." :
-                 modelStatus.stage === 'error' ? `模型错误: ${modelStatus.error}` :
-                 "模型未就绪，请稍候...",
+          modelStatus.stage === 'downloading' ? `模型下载中... ${modelStatus.downloadProgress || 0}%` :
+            modelStatus.stage === 'loading' ? "模型加载中，请稍候..." :
+              modelStatus.stage === 'error' ? `模型错误: ${modelStatus.error}` :
+                "模型未就绪，请稍候...",
         disabled: true
       };
     }
@@ -662,14 +658,7 @@ export default function App() {
                 <Settings className="w-6 h-6 text-gray-700 dark:text-gray-300" />
               </button>
             </Tooltip>
-            <Tooltip content="热键测试" position="bottom">
-              <button
-                onClick={() => setShowHotkeyTest(!showHotkeyTest)}
-                className="p-3 hover:bg-white/70 dark:hover:bg-gray-700/70 rounded-xl transition-colors shadow-sm"
-              >
-                🧪
-              </button>
-            </Tooltip>
+
           </div>
         </div>
 
@@ -711,7 +700,7 @@ export default function App() {
               {/* 移除所有状态指示环，保持简洁 */}
             </button>
           </Tooltip>
-          
+
           <p className="mt-4 status-text text-gray-700 dark:text-gray-300">
             {modelStatus.stage === 'need_download' ? (
               "需要下载AI模型文件才能开始使用"
@@ -763,10 +752,7 @@ export default function App() {
         <SettingsPanel onClose={() => setShowSettings(false)} />
       )}
 
-      {/* 热键测试面板 */}
-      {showHotkeyTest && (
-        <HotkeyTest />
-      )}
+
 
     </div>
   );

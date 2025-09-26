@@ -205,10 +205,7 @@ class HttpServerManager {
                 continue;
               }
 
-              // 跳过热键测试按钮
-              if (innerHTML.includes('🧪') || ariaLabel.includes('热键')) {
-                continue;
-              }
+              
 
               // 查找录音按钮：在录音控制区域、有非拖拽类名、有大阴影（主按钮特征）
               const parent = button.closest('.text-center'); // 录音控制区域的父级
@@ -317,10 +314,7 @@ class HttpServerManager {
                 continue;
               }
 
-              // 跳过热键测试按钮
-              if (innerHTML.includes('🧪') || ariaLabel.includes('热键')) {
-                continue;
-              }
+              
 
               // 查找录音按钮：在录音控制区域、有非拖拽类名、有大阴影（主按钮特征）
               const parent = button.closest('.text-center'); // 录音控制区域的父级
