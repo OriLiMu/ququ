@@ -1,4 +1,5 @@
 import { useState, useCallback } from 'react';
+import { normalizeToEnglishPunctuation } from '../lib/utils';
 
 /**
  * 文本处理Hook
@@ -38,11 +39,13 @@ export const useTextProcessing = () => {
     setError(null);
 
     let processed_text = null;
-    let finalData = { ...transcriptionData, text: raw_text };
+    // 先将原始文本统一为英文标点
+    const normalizedRaw = normalizeToEnglishPunctuation(raw_text);
+    let finalData = { ...transcriptionData, text: normalizedRaw };
 
     if (useAI) {
       try {
-        const actualMode = determineProcessingMode(raw_text, 'auto');
+        const actualMode = determineProcessingMode(normalizedRaw, 'auto');
         if (window.electronAPI && window.electronAPI.log) {
           window.electronAPI.log('info', '开始AI文本优化:', {
             text: raw_text.substring(0, 50) + '...',
@@ -50,13 +53,13 @@ export const useTextProcessing = () => {
           });
         }
         
-        const result = await window.electronAPI.processText(raw_text, actualMode);
+        const result = await window.electronAPI.processText(normalizedRaw, actualMode);
 
         if (result && result.success) {
-          processed_text = result.text;
+          processed_text = normalizeToEnglishPunctuation(result.text);
           finalData.processed_text = processed_text;
           // 如果AI优化后的文本与原始文本不同，则将优化后的文本作为主文本
-          if (processed_text && processed_text.trim() !== raw_text.trim()) {
+          if (processed_text && processed_text.trim() !== normalizedRaw.trim()) {
             finalData.text = processed_text;
           }
           if (window.electronAPI && window.electronAPI.log) {

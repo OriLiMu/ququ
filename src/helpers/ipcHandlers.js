@@ -252,6 +252,8 @@ class IPCHandlers {
       return true;
     });
 
+    
+
     ipcMain.handle("show-control-panel", () => {
       this.windowManager.showControlPanel();
       return true;

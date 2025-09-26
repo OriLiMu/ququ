@@ -248,6 +248,40 @@ class FunASRServer:
             logger.error(traceback.format_exc())
             return {"success": False, "error": error_msg, "type": "init_error"}
 
+    def _normalize_punctuation_to_english(self, text: str) -> str:
+        """将常见中文标点替换为英文标点。保持其他字符不变。"""
+        if not isinstance(text, str) or not text:
+            return text
+        replacements = {
+            "，": ",",
+            "。": ".",
+            "？": "?",
+            "！": "!",
+            "：": ":",
+            "；": ";",
+            "（": "(",
+            "）": ")",
+            "【": "[",
+            "】": "]",
+            "《": "<",
+            "》": ">",
+            "“": '"',
+            "”": '"',
+            "‘": "'",
+            "’": "'",
+            "、": ",",
+            "…": "...",
+            "—": "-",
+            "～": "~",
+            "．": ".",
+            "．": ".",
+        }
+        # 顺序替换
+        for k, v in replacements.items():
+            text = text.replace(k, v)
+        # 去除中英文标点替换后可能产生的多余空格
+        return text
+
     def transcribe_audio(self, audio_path, options=None):
         """转录音频文件"""
         if not self.initialized:
@@ -316,6 +350,12 @@ class FunASRServer:
                     logger.info("FunASR标点恢复完成")
                 except Exception as e:
                     logger.warning(f"FunASR标点恢复失败，使用原始文本: {str(e)}")
+
+            # 统一为英文标点
+            try:
+                final_text = self._normalize_punctuation_to_english(final_text)
+            except Exception as e:
+                logger.warning(f"英文标点规范化失败，保持原文: {str(e)}")
 
             duration = self._get_audio_duration(audio_path)
             self.transcription_count += 1

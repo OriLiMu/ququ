@@ -7,6 +7,7 @@ class WindowManager {
     this.controlPanelWindow = null;
     this.historyWindow = null;
     this.settingsWindow = null;
+    
   }
 
   async createMainWindow() {
@@ -45,6 +46,8 @@ class WindowManager {
 
     return this.mainWindow;
   }
+
+  
 
   async createControlPanelWindow() {
     if (this.controlPanelWindow) {

@@ -642,6 +642,7 @@ export default function App() {
             蛐蛐
           </h1>
           <div className="flex items-center space-x-3 non-draggable">
+
             <Tooltip content="历史记录" position="bottom">
               <button
                 onClick={handleOpenHistory}
